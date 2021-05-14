@@ -1,0 +1,17 @@
+[package]
+name = "rustris-efi"
+version = "0.1.0"
+authors = ["nett_hier <lp@netthier.net>"]
+edition = "2018"
+
+[workspace]
+members = ["disk_image"]
+
+[dependencies]
+uefi = { version="^0.9", features=["alloc", "logger"] }
+uefi-services = "^0.6"
+log = "^0.4"
+embedded-graphics = "^0.6"
+tinybmp = {version = "^0.2", features = ["graphics"]}
+lazy_static = {version = "^1.4", features = ["spin_no_std"]}
+rand = { version = "^0.8", default_features = false, features = ["small_rng"] }
