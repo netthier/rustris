@@ -6,7 +6,7 @@ Tries to follow Tetris guideline as much as possible (SRS, 7-bag, hold, etc.).
 
 
 ## TODO
-- [ ] Fix ghost pieces disappearing if piece is to close to them
+- [ ] Fix ghost pieces disappearing if piece is too close to them
 - [ ] Fix lock down timer not starting after certain twists
 - [ ] Fix memory leak (?) causing the game to crash after a few minutes
 - [ ] Add 15 move rule to lock down (Extended Placement)
