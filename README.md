@@ -8,10 +8,11 @@ Tries to follow Tetris guideline as much as possible (SRS, 7-bag, hold, etc.).
 ## TODO
 - [ ] Fix ghost pieces disappearing if piece is too close to them
 - [ ] Fix lock down timer not starting after certain twists
-- [ ] Fix memory leak (?) causing the game to crash after a few minutes
+- [x] ~~Fix memory leak (?) causing the game to crash after a few minutes~~ Watchdog timer :)
 - [ ] Add 15 move rule to lock down (Extended Placement)
 - [ ] Make "holding keys down" actually work, may require a keyboard driver
 - [ ] Add scoring
+- [ ] Increase gravity with time
 - [ ] Add multiplayer
 
 ## Build instructions

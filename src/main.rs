@@ -19,6 +19,13 @@ use uefi_services::init;
 fn efi_main(_image: Handle, sys_table: SystemTable<Boot>) -> Status {
     init(&sys_table).unwrap().unwrap();
 
+    // Disable the watchdog timer
+    sys_table
+        .boot_services()
+        .set_watchdog_timer(0, 0x10000, None)
+        .unwrap()
+        .unwrap();
+
     info!("Hello, world!");
 
     let mut game = game::Rustris::new();
