@@ -11,7 +11,7 @@ use embedded_graphics::{
 };
 
 pub struct Ui<'a> {
-    score: u32,
+    _score: u32,
     buffer: Framebuffer<'a>,
 }
 
@@ -41,7 +41,7 @@ impl Ui<'_> {
         );
 
         m.draw(&mut buffer).unwrap();
-        Self { score: 0, buffer }
+        Self { _score: 0, buffer }
     }
 
     pub fn draw_matrix(&mut self, matrix: &Matrix) {
@@ -49,7 +49,7 @@ impl Ui<'_> {
         for (row, minos) in matrix.iter().rev().skip(20).take(20).enumerate() {
             for (col, mino) in minos.iter().skip(4).take(10).enumerate() {
                 let sprite = if let Some(mino) = mino {
-                    get_sprite(Sprite::Tetromino(*mino))
+                    get_sprite(Sprite::Tetrimino(*mino))
                 } else {
                     get_sprite(Sprite::Empty)
                 };
@@ -101,9 +101,9 @@ impl Ui<'_> {
 
     pub fn draw_piece(&mut self, tetrimino: Tetrimino, pos: (usize, usize)) {
         let block = (get_rotation(tetrimino) & 0xFFFF000000000000) >> 48;
-        let sprite = get_sprite(Sprite::Tetromino(tetrimino));
+        let sprite = get_sprite(Sprite::Tetrimino(tetrimino));
         for y in 0..4 {
-            let row = (block & (0xF000 >> y * 4)) >> (12 - y * 4);
+            let row = (block & (0xF000 >> (y * 4))) >> (12 - y * 4);
             for x in 0..4 {
                 if (row >> (3 - x)) % 2 == 1 {
                     let image = Image::new(

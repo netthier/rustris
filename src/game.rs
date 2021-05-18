@@ -1,20 +1,14 @@
-use crate::framebuffer::Framebuffer;
-use crate::sprites::{get_sprite, Sprite};
 use crate::ui::Ui;
 use alloc::collections::vec_deque::VecDeque;
-use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::borrow::BorrowMut;
-use core::convert::TryFrom;
 use core::ops::BitOr;
-use core::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use embedded_graphics::image::Image;
+use core::sync::atomic::{AtomicBool, Ordering};
 use log::info;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use uefi::data_types::chars::Char16;
 use uefi::proto::console::text::{Input, Key, ScanCode};
 use uefi::table::boot::{EventType, TimerTrigger, Tpl};
 use uefi::Event;
@@ -277,7 +271,7 @@ impl Rustris<'_> {
     }
 
     fn rotate_piece(&mut self, drot: u8) {
-        let mut active_mino = self.data.active_mino;
+        let active_mino = self.data.active_mino;
 
         let (tetrimino, x, y, rot) = (
             active_mino.0,
@@ -286,9 +280,13 @@ impl Rustris<'_> {
             (active_mino.3 + drot) % 4,
         );
         self.move_ghost(true);
-        if tetrimino.rotate(&mut self.data, (x, y), active_mino.3, rot) {
+        if tetrimino.place(&mut self.data, (x, y - 1), rot, false, true) {
+            self.manage_lockdown_timer(false);
+        } else {
             self.manage_lockdown_timer(true);
         }
+
+        tetrimino.rotate(&mut self.data, (x, y), active_mino.3, rot);
         self.move_ghost(false);
     }
 
@@ -297,7 +295,7 @@ impl Rustris<'_> {
     }
 
     fn move_piece(&mut self, dpos: (isize, isize)) -> bool {
-        let mut active_mino = self.data.active_mino;
+        let active_mino = self.data.active_mino;
 
         let (tetrimino, x, y, rot) = (
             active_mino.0,
@@ -336,10 +334,10 @@ impl Rustris<'_> {
             self.move_ghost(true);
             self.data.active_mino = (tetrimino, x, y, rot);
             // Test if tetrimino has hit ground
-            if tetrimino.place(&mut self.data, (x, y - 1), rot, false, true) {
-                if !self.waiting_lockdown {
-                    self.manage_lockdown_timer(false);
-                }
+            if tetrimino.place(&mut self.data, (x, y - 1), rot, false, true)
+                && !self.waiting_lockdown
+            {
+                self.manage_lockdown_timer(false);
             }
             tetrimino.place(&mut self.data, (x, y), rot, false, false);
             self.move_ghost(false);
@@ -500,7 +498,7 @@ impl Tetrimino {
 
     fn matrix_draw(
         self,
-        mut data: &mut GameData,
+        data: &mut GameData,
         pos: (usize, usize),
         test: bool,
         delete: bool,
@@ -537,14 +535,14 @@ impl Tetrimino {
 
         let rot_data = get_rotation(mino);
 
-        let block = ((rot_data & (0xFFFF000000000000 >> rot * 16)) >> (48 - rot * 16)) as u16;
+        let block = ((rot_data & (0xFFFF000000000000 >> (rot * 16))) >> (48 - rot * 16)) as u16;
         for y in 0..4 {
-            let row = (block & (0xF000 >> y * 4)) >> (12 - y * 4);
+            let row = (block & (0xF000 >> (y * 4))) >> (12 - y * 4);
             for x in 0..4 {
-                if (row >> (3 - x)) % 2 == 1 {
-                    if self.matrix_draw(&mut data, (pos.0 + x, pos.1 - y), test, delete) {
-                        return true;
-                    }
+                if (row >> (3 - x)) % 2 == 1
+                    && self.matrix_draw(&mut data, (pos.0 + x, pos.1 - y), test, delete)
+                {
+                    return true;
                 }
             }
         }
