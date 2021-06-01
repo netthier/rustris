@@ -16,6 +16,8 @@ Tries to follow Tetris guideline as much as possible (SRS, 7-bag, hold, etc.).
 - [ ] Add multiplayer
 
 ## Build instructions
+- `rustup update`
+- `rustup override set nightly`
 - `cargo build --target x86_64-unknown-uefi -Z build-std=core,compiler_builtins,alloc -Z build-std-features=compiler-builtins-mem`
   (Or `cargo kbuild` if using custom config.toml)
   
